@@ -150,6 +150,9 @@ class Api {
     );
   }
 
+  RETRIES = 0;
+  MAX_RETRIES = 10;
+
   /**
    * @description It receives access_token from Marzban api
    * @returns {Promise}
@@ -158,26 +161,42 @@ class Api {
     // if (this.accessTokenExpireAt && Date.now() < +this.accessTokenExpireAt)
     //   return;
 
-    console.log(process.env.P_USER,process.env.P_PASS)
-    try {
-      const d = await this.axios.post("/admin/token", {
-        username: process.env.P_USER,
-        password: process.env.P_PASS,
-      });
+    let token;
 
-      console.log(d)
+    await new Promise((res, rej) => {
+      setTimeout(async () => {
+        if (token) return res(true);
 
-      const data = d?.data
+        if (this.RETRIES >= this.MAX_RETRIES) {
+          return rej(new Error("Can't connect to marzban api"));
+        }
 
-      this.accessToken = data.access_token;
-      this.axios.defaults.headers.common.Authorization = `Bearer ${data.access_token}`;
-      this.accessTokenType = data.token_type;
-      this.accessTokenExpireAt = new Date() + 1000 * 60 * 60;
+        try {
+          const d = await this.axios.post("/admin/token", {
+            username: process.env.P_USER,
+            password: process.env.P_PASS,
+          });
 
-      return data.access_token;
-    } catch (e) {
-      console.error(e);
-    }
+          const access_token = d?.data?.access_token;
+          if (access_token) {
+            token = access_token;
+          } else await this.token();
+        } catch (e) {
+          await this.token();
+        }
+
+        this.RETRIES += 1;
+      }, 2000);
+    });
+
+    console.log("access_token log request", token);
+
+    this.accessToken = token;
+    this.axios.defaults.headers.common.Authorization = `bearer ${token}`;
+    this.accessTokenType = "bearer";
+    this.accessTokenExpireAt = new Date() + 1000 * 60 * 60;
+
+    return token;
   }
 
   async getNodes() {
