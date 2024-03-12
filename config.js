@@ -178,12 +178,16 @@ class Api {
           });
 
           const access_token = d?.data?.access_token;
+          console.log("access_token:",access_token)
+
           if (access_token) {
             token = access_token;
           } else await this.token();
         } catch (e) {
           await this.token();
         }
+
+        console.log(this.RETRIES)
 
         this.RETRIES += 1;
       }, 2000);
