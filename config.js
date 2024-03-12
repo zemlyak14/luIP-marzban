@@ -178,7 +178,7 @@ class Api {
            );
 
           const access_token = d?.data?.access_token;
-          console.log("access_token:",d.headers,access_token)
+          console.log("access_token:",d,access_token)
 
           if (access_token) {
             token = access_token;
