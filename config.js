@@ -182,6 +182,7 @@ class Api {
 
           if (access_token) {
             token = access_token;
+            return res(token)
           } else await this.token();
         } catch (e) {
           await this.token();
