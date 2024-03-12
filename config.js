@@ -158,11 +158,16 @@ class Api {
     // if (this.accessTokenExpireAt && Date.now() < +this.accessTokenExpireAt)
     //   return;
 
+    console.log(process.env.P_USER,process.env.P_PASS)
     try {
-      const { data } = await this.axios.post("/admin/token", {
+      const d = await this.axios.post("/admin/token", {
         username: process.env.P_USER,
         password: process.env.P_PASS,
       });
+
+      console.log(d)
+
+      const data = d?.data
 
       this.accessToken = data.access_token;
       this.axios.defaults.headers.common.Authorization = `Bearer ${data.access_token}`;
