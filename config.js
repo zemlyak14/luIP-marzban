@@ -164,7 +164,7 @@ class Api {
     let token;
 
     await new Promise((res, rej) => {
-      setTimeout(async () => {
+      const tf = setTimeout(async () => {
         if (token) return res(true);
 
         if (this.RETRIES >= this.MAX_RETRIES) {
@@ -183,7 +183,10 @@ class Api {
           if (access_token) {
             token = access_token;
             return res(token)
-          } else await this.token();
+          } else {
+            clearTimeout(tf)
+            await this.token();
+          }
         } catch (e) {
           await this.token();
         }
@@ -191,7 +194,7 @@ class Api {
         console.log(this.RETRIES)
 
         this.RETRIES += 1;
-      }, 2000);
+      }, 1000);
     });
 
     console.log("access_token log request", token);
