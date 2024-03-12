@@ -130,10 +130,11 @@ class Api {
     this.axios = axios.create({
       baseURL: url,
       headers: {
-        accept: "application/json",
         "Content-Type": "application/x-www-form-urlencoded",
       },
     });
+
+    console.log(this.axios.defaults)
 
     this.axios.interceptors.response.use(
       (value) => value,
@@ -141,7 +142,7 @@ class Api {
         if (
           error?.response?.data?.detail === "Could not validate credentials"
         ) {
-          await this.token();
+          // await this.token();
           console.log("New Token:", this.accessToken);
         }
 
@@ -172,10 +173,9 @@ class Api {
         }
 
         try {
-          const d = await this.axios.post("/admin/token", {
-            username: process.env.P_USER,
-            password: process.env.P_PASS,
-          });
+          const d = await this.axios.post("/admin/token",
+           `username=${process.env.P_USER}&password=${process.env.P_PASS}`
+           );
 
           const access_token = d?.data?.access_token;
           console.log("access_token:",access_token)
